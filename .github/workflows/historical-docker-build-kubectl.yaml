@@ -170,17 +170,13 @@ jobs:
         uses: docker/metadata-action@c3b064c6d7c32446d6bc214ea075f1caad2de35a
         with:
           images: ghcr.io/userbradley/kubectl
+          annotations: |
+            org.opencontainers.image.description="Historical Kubectl image"
           labels: |
             org.opencontainers.image.source="https://github.com/userbradley/kubectl"
           tags: |
-            # PR builds
-            type=raw,value=pr-${{ github.event.pull_request.number }}-${{ matrix.version }},enable=${{ github.event_name == 'pull_request' }}
-            type=sha,prefix=pr-${{ github.event.pull_request.number }}-,enable=${{ github.event_name == 'pull_request' }}
-
-            # Main builds (after merge)
             type=raw,value=${{ matrix.version }},enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
             type=sha,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       - name: Download Kubectl
         run: |
           mkdir -p bin/amd64 bin/arm64

@@ -29,6 +29,8 @@ jobs:
         uses: docker/metadata-action@c3b064c6d7c32446d6bc214ea075f1caad2de35a
         with:
           images: ghcr.io/userbradley/kubectl
+          annotations: |
+            org.opencontainers.image.description="Minimal kubectl image"
           labels: |
             org.opencontainers.image.source="https://github.com/userbradley/kubectl"
           tags: |
