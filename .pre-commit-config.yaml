@@ -1,0 +1,23 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: end-of-file-fixer
+        name: Ensure files have end of file
+      - id: trailing-whitespace
+        name: Trims extra whitespaces
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.21.0
+    hooks:
+      - id: yamlfmt
+        name: Yaml Formatting
+        entry: yamlfmt
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.38.2
+    hooks:
+      - id: check-github-actions
+        name: GitHub actions check
+      - id: check-jsonschema
+        name: Validate Renovate.json
+        files: renovate.json
+        args: ["--schemafile", "https://docs.renovatebot.com/renovate-schema.json"]

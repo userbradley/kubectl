@@ -1,0 +1,64 @@
+name: "Kubectl"
+on:
+  pull_request:
+    types:
+      - synchronize
+      - opened
+    paths:
+      - .github/workflows/docker-build-kubectl.yaml
+  push:
+    branches:
+      - main
+      - feature/**
+    paths:
+      - .github/workflows/docker-build-kubectl.yaml
+env:
+  VERSION: 1.37.0 # renovate: datasource=github-tags depName=kubernetes/kubernetes
+jobs:
+  build:
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@c3b064c6d7c32446d6bc214ea075f1caad2de35a
+        with:
+          images: ghcr.io/userbradley/kubectl
+          labels: |
+            org.opencontainers.image.source="https://github.com/userbradley/kubectl"
+          tags: |
+            # PR builds
+            type=raw,value=pr-${{ github.event.pull_request.number }}-${{ env.VERSION }},enable=${{ github.event_name == 'pull_request' }}
+            type=sha,prefix=pr-${{ github.event.pull_request.number }}-,enable=${{ github.event_name == 'pull_request' }}
+
+            # Main builds (after merge)
+            type=raw,value=${{ env.VERSION }},enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+            type=sha,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+      - name: Download Kubectl
+        run: |
+          mkdir -p bin/amd64 bin/arm64
+          curl -sSLo bin/amd64/kubectl "https://dl.k8s.io/release/v${{ env.VERSION }}/bin/linux/amd64/kubectl"
+          curl -sSLo bin/arm64/kubectl "https://dl.k8s.io/release/v${{ env.VERSION }}/bin/linux/arm64/kubectl"
+          chmod +x bin/amd64/kubectl bin/arm64/kubectl
+      - name: Buildah Action
+        id: build_image
+        uses: redhat-actions/buildah-build@v3
+        with:
+          image: ghcr.io/userbradley/kubectl
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          containerfiles: ./Containerfile
+          platforms: linux/amd64,linux/arm64
+      - name: Push to GHCR
+        id: push
+        uses: redhat-actions/push-to-registry@v3
+        with:
+          tags: ${{ steps.build_image.outputs.tags }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
