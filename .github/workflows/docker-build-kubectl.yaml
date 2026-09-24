@@ -1,4 +1,4 @@
-name: "Docker: Kubectl"
+name: "Kubectl"
 on:
   pull_request:
     types:
@@ -29,6 +29,8 @@ jobs:
         uses: docker/metadata-action@c3b064c6d7c32446d6bc214ea075f1caad2de35a
         with:
           images: ghcr.io/userbradley/kubectl
+          labels: |
+            org.opencontainers.image.source="https://github.com/userbradley/kubectl"
           tags: |
             # PR builds
             type=raw,value=pr-${{ github.event.pull_request.number }}-${{ env.VERSION }},enable=${{ github.event_name == 'pull_request' }}
@@ -57,8 +59,6 @@ jobs:
         id: push
         uses: redhat-actions/push-to-registry@v3
         with:
-          image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
-          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
