@@ -3,16 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "customManagers": [
-    {
-      "customType": "regex",
-      "managerFilePatterns": [
-        ".github/workflows/docker-build-kubectl.yaml"
-      ],
-      "matchStrings": [
-        "VERSION:\\s*(?<currentValue>[^\\s]+)\\s*# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)"
-      ]
-    },
+  "packageRules" : [
     {
       "description": "Auto merge Dependencies",
       "matchPackageNames": [
@@ -22,6 +13,17 @@
       "automergeType": "branch",
       "platformAutomerge": false,
       "ignoreTests": true
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        ".github/workflows/docker-build-kubectl.yaml"
+      ],
+      "matchStrings": [
+        "VERSION:\\s*(?<currentValue>[^\\s]+)\\s*# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)"
+      ]
     }
   ]
 }
