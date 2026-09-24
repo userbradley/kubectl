@@ -13,7 +13,7 @@ on:
     paths:
       - .github/workflows/docker-build-kubectl.yaml
 env:
-  VERSION: 1.37.0 # renovate: datasource=github-tags depName=kubernetes/kubernetes
+  VERSION: 1.37.1 # renovate: datasource=github-tags depName=kubernetes/kubernetes
 jobs:
   build:
     timeout-minutes: 5
