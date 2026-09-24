@@ -176,7 +176,6 @@ jobs:
             org.opencontainers.image.source="https://github.com/userbradley/kubectl"
           tags: |
             type=raw,value=${{ matrix.version }},enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-            type=sha,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       - name: Download Kubectl
         run: |
           mkdir -p bin/amd64 bin/arm64
@@ -190,6 +189,7 @@ jobs:
           image: ghcr.io/userbradley/kubectl
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           containerfiles: ./Containerfile
           platforms: linux/amd64,linux/arm64
       - name: Push to GHCR
