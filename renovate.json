@@ -12,6 +12,16 @@
       "matchStrings": [
         "VERSION:\\s*(?<currentValue>[^\\s]+)\\s*# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)"
       ]
+    },
+    {
+      "description": "Auto merge Dependencies",
+      "matchPackageNames": [
+        "kubernetes/kubernetes"
+      ],
+      "automerge": true,
+      "automergeType": "branch",
+      "platformAutomerge": false,
+      "ignoreTests": true
     }
   ]
 }
