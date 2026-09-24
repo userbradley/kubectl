@@ -24,12 +24,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@c3b064c6d7c32446d6bc214ea075f1caad2de35a
         with:
-          images: ghcr.io/userbradley/infra/kubectl
+          images: ghcr.io/userbradley/kubectl
           tags: |
             # PR builds
             type=raw,value=pr-${{ github.event.pull_request.number }}-${{ env.VERSION }},enable=${{ github.event_name == 'pull_request' }}
@@ -39,13 +38,12 @@ jobs:
             type=raw,value=${{ env.VERSION }},enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
             type=sha,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
             type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-
       - name: Prepare binary and Containerfile
         run: |
           # 1. Download kubectl directly on the runner
           curl -sSLO "https://dl.k8s.io/release/v${{ env.VERSION }}/bin/linux/amd64/kubectl"
           chmod +x kubectl
-          
+
           # 2. Generate a minimal Containerfile on the fly
           cat <<EOF > Containerfile
           FROM scratch
@@ -53,20 +51,18 @@ jobs:
           ENTRYPOINT ["/usr/local/bin/kubectl"]
           EOF
 
-          # 3. docker/metadata-action outputs fully qualified tags (ghcr.io/...). 
+          # 3. docker/metadata-action outputs fully qualified tags (ghcr.io/...).
           # The Buildah action expects just the tag versions, so we strip the image prefix.
           TAGS=$(echo "${{ steps.meta.outputs.tags }}" | cut -d':' -f2 | tr '\n' ' ')
           echo "BUILDAH_TAGS=$TAGS" >> $GITHUB_ENV
-
       - name: Buildah Action
         id: build_image
         uses: redhat-actions/buildah-build@v3
         with:
-          image: ghcr.io/userbradley/infra/kubectl
+          image: ghcr.io/userbradley/kubectl
           tags: ${{ env.BUILDAH_TAGS }}
           labels: ${{ steps.meta.outputs.labels }}
           containerfiles: ./Containerfile
-
       - name: Push to GHCR
         id: push
         uses: redhat-actions/push-to-registry@v3
