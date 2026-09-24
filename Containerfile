@@ -1,3 +1,4 @@
-FROM scratch
-COPY kubectl /usr/local/bin/kubectl
+FROM scraawl/keycloak-theme-scraawl
+ARG TARGETARCH
+COPY bin/${TARGETARCH}/kubectl /usr/local/bin/kubectl
 ENTRYPOINT ["/usr/local/bin/kubectl"]

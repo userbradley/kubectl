@@ -16,11 +16,6 @@ env:
   VERSION: 1.37.0 # renovate: datasource=github-tags depName=kubernetes/kubernetes
 jobs:
   build:
-    strategy:
-      matrix:
-        platforms:
-          - amd64
-          - arm64
     timeout-minutes: 5
     permissions:
       id-token: write
@@ -45,8 +40,10 @@ jobs:
             type=raw,value=latest,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
       - name: Download Kubectl
         run: |
-          curl -sSLO "https://dl.k8s.io/release/v${{ env.VERSION }}/bin/linux/${{matrix.platforms}}/kubectl"
-          chmod +x kubectl
+          mkdir -p bin/amd64 bin/arm64
+          curl -sSLo bin/amd64/kubectl "https://dl.k8s.io/release/v${{ env.VERSION }}/bin/linux/amd64/kubectl"
+          curl -sSLo bin/arm64/kubectl "https://dl.k8s.io/release/v${{ env.VERSION }}/bin/linux/arm64/kubectl"
+          chmod +x bin/amd64/kubectl bin/arm64/kubectl
       - name: Buildah Action
         id: build_image
         uses: redhat-actions/buildah-build@v3
@@ -55,7 +52,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           containerfiles: ./Containerfile
-          platforms: linux/${{matrix.platforms}}
+          platforms: linux/amd64,linux/arm64
       - name: Push to GHCR
         id: push
         uses: redhat-actions/push-to-registry@v3
